@@ -26,7 +26,7 @@ A.equals(B); // we want it to return true, but it will not, because .equals() me
 ```
 
 
-# Task 2:
+## Task 2:
 
 >Do you have any alternative ideas of how we can compare two random objects for equality? Explain their pros and cons.
 
