@@ -33,3 +33,5 @@ In terms of ending result (smaller tests redundancy, less compiling and running 
 > You are given a set of items S. Each item is identified by its unique name and has some positive integer price. Write a function that will divide an original set into two subsets A and B such that:
 > - abs(size(A) - size(B)) == size(S) % 2
 > - the difference between the sums of prices of elements of subsets A and B is minimal
+
+(
