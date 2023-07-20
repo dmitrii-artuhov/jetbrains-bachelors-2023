@@ -34,4 +34,4 @@ In terms of ending result (smaller tests redundancy, less compiling and running 
 > - abs(size(A) - size(B)) == size(S) % 2
 > - the difference between the sums of prices of elements of subsets A and B is minimal
 
-(
+A dumb solution would be to write a recursion with cuts that would iterate over all possibilities for the elements in set A and calculate the minimum sum difference. Time complexity `O*(2^(n / 2))`. 
