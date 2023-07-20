@@ -153,34 +153,82 @@ We can also compare two random objects by serializing them and then comparing th
 
 ## Task 3:
 
+1. The code below returns `true` if trees are the same in structure and element values, `false` otherwise. Time complexity `O(n)`, where `n` .
+   
+   ```java
+   class BinaryTree {
+       int value;
+       BinaryTree left;
+       BinaryTree right;
+   
+       static boolean contentsSimilar(BinaryTree lhv, BinaryTree rhv) {
+           if (lhv == null && rhv == null) {
+               return true;
+           }
+   
+           if (lhv == null || rhv == null) {
+               return false;
+           }
+   
+           return lhv.value == rhv.value &&
+                  contentsSimilar(lhv.left, rhv.left) &&
+                  contentsSimilar(lhv.right, lhv.right);
+       }
+   
+       // You can consider that these methods are implemented
+       // and you can use them if needed
+       boolean contains(int value);
+       boolean add(int value);
+       boolean remove(int value);
+       int size();
+   }
+   ```
+
+2. The code below returns `true` if trees have the same multi-sets of values.
+
 ```java
+import java.util.ArrayList;
+
 class BinaryTree {
-    int value;
-    BinaryTree left;
-    BinaryTree right;
+   int value;
+   BinaryTree left;
+   BinaryTree right;
 
-    /**
-     * @return true is trees are the same in structure and element values, false otherwise
-     */
-    static boolean contentsSimilar(BinaryTree lhv, BinaryTree rhv) {
-        if (lhv == null && rhv == null) {
-            return true;
-        }
 
-        if (lhv == null || rhv == null) {
-            return false;
-        }
+   static boolean contentsSimilar(BinaryTree lhv, BinaryTree rhv) {
+      List<Integer> removedElements = new ArrayList<>();
+      boolean isSimilar = checkContentsSimilar(lhv, rhv, removedElements);
 
-        return lhv.value == rhv.value &&
-               contentsSimilar(lhv.left, rhv.left) &&
-               contentsSimilar(lhv.right, lhv.right);
-    }
+      // put elements back
+      for (int value : removedElements) {
+         rhv.add(value);
+      }
 
-    // You can consider that these methods are implemented
-    // and you can use them if needed
-    boolean contains(int value);
-    boolean add(int value);
-    boolean remove(int value);
-    int size();
+      return isSimilar;
+   }
+
+   private static boolean checkContentsSimilar(BinaryTree lhv, BinaryTree rhv, List<Integer> removedElements) {
+      if (lhv == null) {
+         return true;
+      }
+
+      int value = lhv.value;
+      if (rhv.contains(value)) {
+         // remove element because BST might have more than 1 node with the same values
+         rhv.remove(value);
+         removedElements.add(value);
+         return checkContentsSimilar(lhv.left, rhv, removedElements) &&
+                 checkContentsSimilar(lhv.right, rhv, removedElements);
+      }
+
+      return false;
+   }
+
+   // You can consider that these methods are implemented
+   // and you can use them if needed
+   boolean contains(int value);
+   boolean add(int value);
+   boolean remove(int value);
+   int size();
 }
 ```
