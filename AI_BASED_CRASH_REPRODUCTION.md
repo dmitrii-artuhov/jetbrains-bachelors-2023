@@ -3,7 +3,19 @@
 ## Task 1:
 > Why are you interested in this project and how do you see its implementation?
 
+### Motivation: 
 
+I am enthusiastic about participating in this research work for several compelling reasons that align with my background and interests in Java and Kotlin programming. 
+
+I have a genuine passion for software development, and I understand the significance of robust and reliable software systems. My knowledge in Java and my ongoing learning journey in Kotlin have provided me with a solid foundation in two related to the research work programming languages. This knowledge base equips me with the skills necessary to deliver new code, understand already written codebases, and contribute effectively to the research.
+
+The integration of AI techniques, particularly Large Language Models, into software development tasks has piqued my interest. The potential of AI in generating tests and reproducing complex crashes represents a cutting-edge approach that holds great promise. I am eager to delve into this emerging field and contribute to its advancement.
+
+More about my prior experience you can see in my resume [here](https://drive.google.com/file/d/1xAeLxKeC-u-VbqWDPDTSS_Y4QYsHiI0N/view?usp=sharing).
+
+### Implementation thoughts:
+
+TODO: explain how I see the implementation of this project.
 
 ## Task 2:
 
@@ -55,7 +67,7 @@ java.lang.ArrayIndexOutOfBoundsException: 5
 	at org.apache.commons.lang3.time.FastDateFormat.getInstance(FastDateFormat.java:165)
 ```
 
-There is a difference in the exception message probably because of the platform and setup differences. I used: 
+There is a difference in the exception message probably because of the platform and setup differences. I used (in both crash reproductions): 
 - Windows 10
 - Amazon corretto 1.8 SDK
 - Java 8
