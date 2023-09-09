@@ -3,6 +3,8 @@
 ## Task 1:
 > Why are you interested in this project and how do you see its implementation?
 
+
+
 ## Task 2:
 
 > Reproduce the crashes.
@@ -97,10 +99,83 @@ There is a difference in the exception message probably because of the platform 
 ### Crash #2
 
 ```java
-org.apache.commons.math.MathRuntimeException$6: the addressing table has been modified during the iteration 
+org.apache.commons.math.MathRuntimeException$6: map has been modified while iterating
     at org.apache.commons.math.MathRuntimeException.createConcurrentModificationException(MathRuntimeException.java:373)
     at org.apache.commons.math.util.OpenIntToDoubleHashMap$Iterator.advance(OpenIntToDoubleHashMap.java:564)
     at org.apache.commons.math.linear.OpenMapRealVector.ebeMultiply(OpenMapRealVector.java:372)
     at org.apache.commons.math.linear.OpenMapRealVector.ebeMultiply(OpenMapRealVector.java:33)
 ```
 
+#### Solution:
+
+My JUnit-4.10 test that reproduces the same exception and the same stack trace:
+
+```java
+@Test(expected = ConcurrentModificationException.class)
+public void test() throws InterruptedException {
+    int iterations = 100000;
+    OpenMapRealVector vec = new OpenMapRealVector(3);
+
+    // just a utility lambda to set values of the vector
+    BiConsumer<OpenMapRealVector, Double> setEntriesOfVector = (vector, value) -> {
+        vector.setEntry(0, value);
+        vector.setEntry(1, value);
+        vector.setEntry(2, value);
+    };
+
+    setEntriesOfVector.accept(vec, 1.0);
+    
+    // we need to generate concurrent modification exception,
+    // for that we modify `vec` variable from thread `t` and the main thread
+    Thread t = new Thread(() -> {
+        // force undelying data structure inside `OpenMapRealVector` class to update modifications count variable
+        for (int i = 0; i < iterations; ++i) {
+            if ((i & 1) == 0) {
+                setEntriesOfVector.accept(vec, (double)i);
+            }
+            else {
+                setEntriesOfVector.accept(vec, 0.0); // this line forces to clear the vector values and always update the modifications count variable
+            }
+        }
+    });
+
+    t.start();
+
+    try {
+        OpenMapRealVector vec2 = new OpenMapRealVector(3);
+        setEntriesOfVector.accept(vec2, 2.0);
+
+        for (int i = 0; i < iterations; ++i) {
+            // there is `OpenIntToDoubleHashMap::Iterator` class instantiation inside, then method starts to iterate over it, calling `OpenIntToDoubleHashMap::Iterator::advance()`
+            vec.ebeMultiply(vec2);
+        }
+    }
+    catch(Exception err) {
+        err.printStackTrace();
+        throw err;
+    }
+
+    t.join();
+}
+```
+
+#### Explanation:
+1. There is `OpenIntToDoubleHashMap` data structure used inside `OpenMapRealVector` class for storing and handling vector values.
+2. `OpenIntToDoubleHashMap::ebeMultiply(...)` method in its body creates an instance of `OpenIntToDoubleHashMap::Iterator` class and iterates over it. When advancing to the next element of the hashmap the check for simultaneously update happens. It is checked via modifications count variable that is stored inside `OpenIntToDoubleHashMap` class.
+3. So we are able to generate the required exception if we modify `OpenIntToDoubleHashMap` data structure simultaneously with iterating over its iterator instance. My code creates a separate thread for that and performs multiple vector updates using both `OpenMapRealVector::setEntry(...)` and `OpenMapRealVector::ebeMultiply()` methods. Thus, the correct exception is thrown.
+
+I want to notice that it is unlikely that this exception **will not** be thrown in my test, but it is still possible. For example, it is possible in several cases:
+
+1. When thread `t` finishes its work before main thread starts its for-loop.
+2. When these conditions hold at once:
+    - operating system will decide to run both threads (main and `t`) on the same CPU core switching between them (e.g. if we run the test on the machine with single CPU core)
+    - if `vec.ebeMultiply(...)` method never intersects with `OpenIntToDoubleHashMap::Iterator::advance()` method that is called inside `vec.setEntry(...)`.
+
+These are some cases, but there might be more. So in order to catch this exception we should make significant number of `iterations`, in such case the chances of missing this exception will be much lower.
+
+
+### About ChatGPT:
+
+I used GPT-3.5 version in order to get some insights of how these tests might be implemented. ChatGPT was a bit userful in the 1st crash reproduction, because it gave me a good insight that the problem might be in Japanese Imperial Locale, but it still wasn't able to generate the working test code for it.
+
+In the 2nd crash reproduction it wasn't much help from ChatGPT.
