@@ -9,13 +9,30 @@ I am enthusiastic about participating in this research work for several compelli
 
 I have a genuine passion for software development, and I understand the significance of robust and reliable software systems. My knowledge in Java and my ongoing learning journey in Kotlin have provided me with a solid foundation in two related to the research work programming languages. This knowledge base equips me with the skills necessary to deliver new code, understand already written codebases, and contribute effectively to the research.
 
-The integration of AI techniques, particularly Large Language Models, into software development tasks has piqued my interest. The potential of AI in generating tests and reproducing complex crashes represents a cutting-edge approach that holds great promise. I am eager to delve into this emerging field and contribute to its advancement.
+The integration of AI techniques, particularly Large Language Models, into software development tasks has piqued my interest. The potential of AI in generating tests and reproducing complex crashes represents a cutting-edge approach that holds great promise. I am eager to dive into this field and contribute to its advancement.
 
-More about my prior experience you can see in my resume [here](https://drive.google.com/file/d/1xAeLxKeC-u-VbqWDPDTSS_Y4QYsHiI0N/view?usp=sharing).
+More about my prior experience and my projects you can see in my resume [here](https://drive.google.com/file/d/1xAeLxKeC-u-VbqWDPDTSS_Y4QYsHiI0N/view?usp=sharing).
 
 ### Implementation thoughts:
 
-TODO: explain how I see the implementation of this project.
+How I see the implementation of this project.
+
+1. Application of LLMs for crash reproduction:
+    
+    a. It should work independently:
+    
+    - We could use the prompt generating approach that was introduced in the [Exploring LLM-based General Bug Reproduction](https://arxiv.org/pdf/2209.11515.pdf) paper, specifically using markdown with some sections (stack trace of the crash, crash description if exists). For the source code, the number of tokens might be overwhelming and most of the code will be unrelated to crash reproduction. To handle that we might only send source code for those classes that are reachable from the method calls in the stack trace. Handling special method calls (e.g. native calls for read/write operations) might require further investigation. We want LLM to generate multiple answers with some differences, for that we have to tune some model parameters.
+    - In the paper you provided (as I understood) no source code was fed to the LLM thats why algorithm for dependencies resolution was provided. Even though we feed the source code problems with dependacies resultion might still occur. We could enhance the *Algorithm 1* provided in the paper in order to handle that.
+    - If no valid candidate tests for crash reproduction were found then we could take the best candidates (the heuristics for picking "the best" candidates are described in *Algorithm 2* of the paper) and generate new prompt for the LLM feeding those tests and the reasons why they are not working (e.g. stack trace is different, no crash appeared, etc.)
+
+    b. Works as a helper for other crash reproduction techniques:
+
+    - We might ask LLM to generate the tests with prompt that I described in bullet-point (a) and then feed those tests to the evolutionary-based crash reproduction algorithm. Another use case might be to use LLM on the mutation stage of evolutionary-based algorithm, because LLM might generate some mutations that might not be achievable with using it.
+
+2. Assess the availability of crash reproduction in real-world cases:
+    - For that we can aggregate the existing stack traces reported for Intellij IDEA, generate prompts for them and run the newly created LLM model on each prompt in both variants: as a standalone crash reproduction tool and as a helper for the existing algorithms. 
+
+
 
 ## Task 2:
 
