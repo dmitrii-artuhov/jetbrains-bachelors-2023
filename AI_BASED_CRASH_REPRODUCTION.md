@@ -11,7 +11,7 @@ I have a genuine passion for software development, and I understand the signific
 
 The integration of AI techniques, particularly Large Language Models, into software development tasks has piqued my interest. The potential of AI in generating tests and reproducing complex crashes represents a cutting-edge approach that holds great promise. I am eager to dive into this field and contribute to its advancement.
 
-More about my prior experience and my projects you can see in my resume [here](https://drive.google.com/file/d/1xAeLxKeC-u-VbqWDPDTSS_Y4QYsHiI0N/view?usp=sharing).
+More about my prior experience and my projects you can see in my resume [here](https://drive.google.com/file/d/1uFJR5I1N6BIN9ZXGSBsofSVJacNAKc4r/view?usp=sharing).
 
 ### Implementation thoughts:
 
