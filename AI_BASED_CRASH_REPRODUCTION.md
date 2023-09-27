@@ -176,7 +176,12 @@ public void test() throws InterruptedException {
 
         for (int i = 0; i < iterations; ++i) {
             // there is `OpenIntToDoubleHashMap::Iterator` class instantiation inside, then method starts to iterate over it, calling `OpenIntToDoubleHashMap::Iterator::advance()`
-            vec.ebeMultiply(vec2);
+            
+            // we have to write this instead of `vec.ebeMultiply(vec2);`
+            ((RealVector)vec).ebeMultiply(vec2);
+            // because we need to call method from interface in order to retrieve line:
+            // `at org.apache.commons.math.linear.OpenMapRealVector.ebeMultiply(OpenMapRealVector.java:33)`
+
         }
     }
     catch(Exception err) {
@@ -190,8 +195,15 @@ public void test() throws InterruptedException {
 
 #### Explanation:
 1. There is `OpenIntToDoubleHashMap` data structure used inside `OpenMapRealVector` class for storing and handling vector values.
-2. `OpenIntToDoubleHashMap::ebeMultiply(...)` method in its body creates an instance of `OpenIntToDoubleHashMap::Iterator` class and iterates over it. When advancing to the next element of the hashmap the check for simultaneously update happens. It is checked via modifications count variable that is stored inside `OpenIntToDoubleHashMap` class.
-3. So we are able to generate the required exception if we modify `OpenIntToDoubleHashMap` data structure simultaneously with iterating over its iterator instance. My code creates a separate thread for that and performs multiple vector updates using both `OpenMapRealVector::setEntry(...)` and `OpenMapRealVector::ebeMultiply()` methods. Thus, the correct exception is thrown.
+2. We need to call method `ebeMultiply` on the interface of the `OpenIntToDoubleHashMap` class in order to retrieve the correct crash trace. This will generate line:
+
+    ```txt
+        ...
+        at org.apache.commons.math.linear.OpenMapRealVector.ebeMultiply(OpenMapRealVector.java:33)
+    ```
+
+3. `OpenIntToDoubleHashMap::ebeMultiply(...)` method in its body creates an instance of `OpenIntToDoubleHashMap::Iterator` class and iterates over it. When advancing to the next element of the hashmap the check for simultaneously update happens. It is checked via modifications count variable that is stored inside `OpenIntToDoubleHashMap` class.
+4. So we are able to generate the required exception if we modify `OpenIntToDoubleHashMap` data structure simultaneously with iterating over its iterator instance. My code creates a separate thread for that and performs multiple vector updates using both `OpenMapRealVector::setEntry(...)` and `OpenMapRealVector::ebeMultiply()` methods. Thus, the correct exception is thrown.
 
 I want to notice that it is unlikely that this exception **will not** be thrown in my test, but it is still possible. For example, it is possible in several cases:
 
